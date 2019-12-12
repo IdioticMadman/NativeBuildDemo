@@ -1,0 +1,4 @@
+//include ':app'
+//include ':cmakedemo'
+include ':player'
+rootProject.name = 'NativeBuildDemo'
