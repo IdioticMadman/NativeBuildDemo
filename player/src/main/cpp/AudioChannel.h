@@ -7,9 +7,11 @@
 
 #include "BaseChannel.h"
 
-class AudioChannel: public BaseChannel{
+class AudioChannel : public BaseChannel {
 public:
-    AudioChannel(int id);
+    AudioChannel(int id, AVCodecContext *avCodecContext);
+
     void play();
 };
+
 #endif //NATIVEBUILDDEMO_AUDIOCHANNEL_H

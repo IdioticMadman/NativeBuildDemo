@@ -28,7 +28,7 @@ public:
 
     void start();
 
-    void _play();
+    void _start();
 
 private:
     JavaCallHelper *callHelper;;

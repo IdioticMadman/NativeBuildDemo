@@ -13,7 +13,7 @@ void *taskPrepare(void *args) {
 
 void *taskPlay(void *args) {
     auto myFFmpeg = static_cast<MyFFmpeg *>(args);
-    myFFmpeg->_play();
+    myFFmpeg->_start();
     return nullptr;
 }
 
@@ -93,9 +93,9 @@ void MyFFmpeg::_prepare() {
         AVMediaType mediaType = codecPar->codec_type;
 
         if (mediaType == AVMEDIA_TYPE_AUDIO) {
-            audioChannel = new AudioChannel(i);
+            audioChannel = new AudioChannel(i, codecCtx);
         } else if (mediaType == AVMEDIA_TYPE_VIDEO) {
-            videoChannel = new VideoChannel(i);
+            videoChannel = new VideoChannel(i, codecCtx);
         }
     }
     if (!audioChannel && !videoChannel) {
@@ -110,19 +110,25 @@ void MyFFmpeg::_prepare() {
 
 void MyFFmpeg::start() {
     isPlaying = 1;
+    if (videoChannel) {
+        videoChannel->packetQueue->setWork(1);
+        //开启播放，decode + render
+        videoChannel->play();
+    }
+    //开启读取 packet 线程
     pthread_create(&playPid, nullptr, taskPlay, this);
 }
 
-void MyFFmpeg::_play() {
+void MyFFmpeg::_start() {
     int ret;
     while (isPlaying) {
         AVPacket *packet = av_packet_alloc();
         ret = av_read_frame(avFormatContext, packet);
         if (ret == 0) {
             if (audioChannel && packet->stream_index == audioChannel->id) {
-//                audioChannel->packetQueue->enqueue(packet);
+                audioChannel->packetQueue->enqueue(packet);
             } else if (videoChannel && packet->stream_index == videoChannel->id) {
-//                videoChannel->packetQueue->enqueue(packet);
+                videoChannel->packetQueue->enqueue(packet);
             }
         } else if (AVERROR_EOF == ret) {
             LOGE("到文件末尾");
