@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     final String url = "http://tx2play1.douyucdn.cn/live/288016rlols5.flv";
+//    final String url = "rtmp://58.200.131.2:1935/livetv/hunantv";
 
     private MyPlayer myPlayer;
 
@@ -34,8 +35,10 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         Toast.makeText(MainActivity.this, "视频准备就绪", Toast.LENGTH_SHORT)
                                 .show();
+                        myPlayer.start();
                     }
                 });
+
             }
         });
     }

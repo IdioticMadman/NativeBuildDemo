@@ -30,6 +30,8 @@ public:
 
     void _start();
 
+    void setRenderFrameCallback(VideoChannel::RenderFrameCallback renderFrameCallback);
+
 private:
     JavaCallHelper *callHelper;;
     char *dataSource;
@@ -39,6 +41,8 @@ private:
     AudioChannel *audioChannel = nullptr;
     VideoChannel *videoChannel = nullptr;
     int isPlaying = 0;
+    //视频数据回调
+    VideoChannel::RenderFrameCallback renderFrameCallback = nullptr;
 };
 
 #endif //NATIVEBUILDDEMO_MYFFMPEG_H

@@ -128,6 +128,7 @@ void MyFFmpeg::_start() {
             if (audioChannel && packet->stream_index == audioChannel->id) {
                 audioChannel->packetQueue->enqueue(packet);
             } else if (videoChannel && packet->stream_index == videoChannel->id) {
+                videoChannel->setReaderFrameCallback(this->renderFrameCallback);
                 videoChannel->packetQueue->enqueue(packet);
             }
         } else if (AVERROR_EOF == ret) {
@@ -138,5 +139,10 @@ void MyFFmpeg::_start() {
     }
 
 }
+
+void MyFFmpeg::setRenderFrameCallback(VideoChannel::RenderFrameCallback renderFrameCallback) {
+    this->renderFrameCallback = renderFrameCallback;
+}
+
 
 

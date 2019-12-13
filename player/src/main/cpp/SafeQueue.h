@@ -19,14 +19,16 @@ class SafeQueue {
     typedef void (*SyncHandler)(std::queue<T> *queue);
 
 public:
-    SafeQueue(){
+    SafeQueue() {
         pthread_mutex_init(&pMutex, nullptr);
         pthread_cond_init(&pCond, nullptr);
+        queue = new std::queue<T>;
     }
 
-    ~SafeQueue(){
+    ~SafeQueue() {
         pthread_mutex_destroy(&pMutex);
         pthread_cond_destroy(&pCond);
+        DELETE(queue);
     }
 
     /**
@@ -34,7 +36,7 @@ public:
      * @param t
      * @return
      */
-    T dequeue(T &t){
+    int dequeue(T &t) {
         int ret = 0;
         pthread_mutex_lock(&pMutex);
         while (work && queue->empty()) {
@@ -55,7 +57,7 @@ public:
      * 入队
      * @param t
      */
-    void enqueue(T t){
+    void enqueue(T t) {
         pthread_mutex_lock(&pMutex);
         if (work) {
             queue->push(t);
@@ -68,18 +70,18 @@ public:
      * 设置释放时，item 释放的回调
      * @param releaseCallback
      */
-    void setReleaseCallback(ReleaseCallback releaseCallback){
+    void setReleaseCallback(ReleaseCallback releaseCallback) {
         this->releaseCallback = releaseCallback;
     }
 
-    void setSyncHandler(SyncHandler syncHandler){
+    void setSyncHandler(SyncHandler syncHandler) {
         this->syncHandler = syncHandler;
     }
 
     /**
      * 提供一个线程安全的方法操作内部 queue
      */
-    void sync(){
+    void sync() {
         pthread_mutex_lock(&pMutex);
         //主动丢包
         if (syncHandler) {
@@ -91,7 +93,7 @@ public:
     /**
         * 清除队列
         */
-    void clear(){
+    void clear() {
         pthread_mutex_lock(&pMutex);
         uint32_t size = queue->size();
         for (int i = 0; i < size; ++i) {
@@ -109,7 +111,7 @@ public:
      * 更新 safeQueue 的状态
      * @param status
      */
-    void setWork(int status){
+    void setWork(int status) {
         pthread_mutex_lock(&pMutex);
         this->work = status;
         //通知当前状态发生变化
